@@ -261,6 +261,7 @@ MVX_API MVX_INLINE int mvx_point_in_box_eps_world(mvx_v3 p, mvx_v3 c, mvx_v3 h, 
  * # Mesh Voxelization Algorythm
  * #############################################################################
  */
+
 /* Akenine-Möller triangle-box overlap test */
 MVX_API MVX_INLINE int mvx_triangle_box_overlap(
     mvx_v3 boxcenter,
@@ -269,153 +270,55 @@ MVX_API MVX_INLINE int mvx_triangle_box_overlap(
     mvx_v3 triv1,
     mvx_v3 triv2)
 {
-  mvx_v3 v0, v1, v2;
-  mvx_v3 e0, e1, e2;
-  mvx_v3 fexyzez;
-
-  float p0, p1, p2, minp, maxp, rad;
-  float minv, maxv;
-
   /* move triangle to box space */
-  v0 = mvx_v3_sub(triv0, boxcenter);
-  v1 = mvx_v3_sub(triv1, boxcenter);
-  v2 = mvx_v3_sub(triv2, boxcenter);
+  mvx_v3 v0 = mvx_v3_sub(triv0, boxcenter);
+  mvx_v3 v1 = mvx_v3_sub(triv1, boxcenter);
+  mvx_v3 v2 = mvx_v3_sub(triv2, boxcenter);
 
-  e0 = mvx_v3_sub(v1, v0);
-  e1 = mvx_v3_sub(v2, v1);
-  e2 = mvx_v3_sub(v0, v2);
+  /* triangle edges */
+  mvx_v3 e0 = mvx_v3_sub(v1, v0);
+  mvx_v3 e1 = mvx_v3_sub(v2, v1);
+  mvx_v3 e2 = mvx_v3_sub(v0, v2);
+
+  float minv;
+  float maxv;
+
+  mvx_v3 n;
+  float p0;
+  float rad;
+
+  int i;
 
   /* 9 axis tests */
-  fexyzez = mvx_v3_abs(e0);
+  mvx_v3 fexyz[3];
+  fexyz[0] = mvx_v3_abs(e0);
+  fexyz[1] = mvx_v3_abs(e1);
+  fexyz[2] = mvx_v3_abs(e2);
 
-  p0 = v0.z * e0.y - v0.y * e0.z;
-  p1 = v1.z * e0.y - v1.y * e0.z;
-  p2 = v2.z * e0.y - v2.y * e0.z;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.y * fexyzez.z + boxhalf.z * fexyzez.y;
-
-  if (minp > rad || maxp < -rad)
+  /* Loop through the three triangle edges (e0, e1, e2) */
+  for (i = 0; i < 3; ++i)
   {
-    return 0;
-  }
+    mvx_v3 fexyzez = fexyz[i];
+    mvx_v3 edge = (i == 0) ? e0 : ((i == 1) ? e1 : e2);
 
-  p0 = v0.x * e0.z - v0.z * e0.x;
-  p1 = v1.x * e0.z - v1.z * e0.x;
-  p2 = v2.x * e0.z - v2.z * e0.x;
+    /* Test axes for each edge */
+    if (mvx_maxf(mvx_maxf(v0.z * edge.y - v0.y * edge.z, v1.z * edge.y - v1.y * edge.z), v2.z * edge.y - v2.y * edge.z) < -(boxhalf.y * fexyzez.z + boxhalf.z * fexyzez.y) ||
+        mvx_minf(mvx_minf(v0.z * edge.y - v0.y * edge.z, v1.z * edge.y - v1.y * edge.z), v2.z * edge.y - v2.y * edge.z) > (boxhalf.y * fexyzez.z + boxhalf.z * fexyzez.y))
+    {
+      return 0;
+    }
 
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
+    if (mvx_maxf(mvx_maxf(v0.x * edge.z - v0.z * edge.x, v1.x * edge.z - v1.z * edge.x), v2.x * edge.z - v2.z * edge.x) < -(boxhalf.x * fexyzez.z + boxhalf.z * fexyzez.x) ||
+        mvx_minf(mvx_minf(v0.x * edge.z - v0.z * edge.x, v1.x * edge.z - v1.z * edge.x), v2.x * edge.z - v2.z * edge.x) > (boxhalf.x * fexyzez.z + boxhalf.z * fexyzez.x))
+    {
+      return 0;
+    }
 
-  rad = boxhalf.x * fexyzez.z + boxhalf.z * fexyzez.x;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
-  }
-
-  p0 = v0.y * e0.x - v0.x * e0.y;
-  p1 = v1.y * e0.x - v1.x * e0.y;
-  p2 = v2.y * e0.x - v2.x * e0.y;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.x * fexyzez.y + boxhalf.y * fexyzez.x;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
-  }
-
-  fexyzez = mvx_v3_abs(e1);
-
-  p0 = v0.z * e1.y - v0.y * e1.z;
-  p1 = v1.z * e1.y - v1.y * e1.z;
-  p2 = v2.z * e1.y - v2.y * e1.z;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.y * fexyzez.z + boxhalf.z * fexyzez.y;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
-  }
-
-  p0 = v0.x * e1.z - v0.z * e1.x;
-  p1 = v1.x * e1.z - v1.z * e1.x;
-  p2 = v2.x * e1.z - v2.z * e1.x;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.x * fexyzez.z + boxhalf.z * fexyzez.x;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
-  }
-
-  p0 = v0.y * e1.x - v0.x * e1.y;
-  p1 = v1.y * e1.x - v1.x * e1.y;
-  p2 = v2.y * e1.x - v2.x * e1.y;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.x * fexyzez.y + boxhalf.y * fexyzez.x;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
-  }
-
-  fexyzez = mvx_v3_abs(e2);
-
-  p0 = v0.z * e2.y - v0.y * e2.z;
-  p1 = v1.z * e2.y - v1.y * e2.z;
-  p2 = v2.z * e2.y - v2.y * e2.z;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.y * fexyzez.z + boxhalf.z * fexyzez.y;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
-  }
-
-  p0 = v0.x * e2.z - v0.z * e2.x;
-  p1 = v1.x * e2.z - v1.z * e2.x;
-  p2 = v2.x * e2.z - v2.z * e2.x;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.x * fexyzez.z + boxhalf.z * fexyzez.x;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
-  }
-
-  p0 = v0.y * e2.x - v0.x * e2.y;
-  p1 = v1.y * e2.x - v1.x * e2.y;
-  p2 = v2.y * e2.x - v2.x * e2.y;
-
-  minp = mvx_minf(mvx_minf(p0, p1), p2);
-  maxp = mvx_maxf(mvx_maxf(p0, p1), p2);
-
-  rad = boxhalf.x * fexyzez.y + boxhalf.y * fexyzez.x;
-
-  if (minp > rad || maxp < -rad)
-  {
-    return 0;
+    if (mvx_maxf(mvx_maxf(v0.y * edge.x - v0.x * edge.y, v1.y * edge.x - v1.x * edge.y), v2.y * edge.x - v2.x * edge.y) < -(boxhalf.x * fexyzez.y + boxhalf.y * fexyzez.x) ||
+        mvx_minf(mvx_minf(v0.y * edge.x - v0.x * edge.y, v1.y * edge.x - v1.x * edge.y), v2.y * edge.x - v2.x * edge.y) > (boxhalf.x * fexyzez.y + boxhalf.y * fexyzez.x))
+    {
+      return 0;
+    }
   }
 
   /* test overlap in box axes */
@@ -433,19 +336,15 @@ MVX_API MVX_INLINE int mvx_triangle_box_overlap(
   }
 
   /* plane-box overlap */
+  n = mvx_v3_cross(e0, e1);
+  p0 = -mvx_v3_dot(n, v0);
+  rad = mvx_v3_dot(boxhalf, mvx_v3_abs(n));
+
+  if (p0 > rad || p0 < -rad)
   {
-    mvx_v3 n;
-    n = mvx_v3_cross(e0, e1);
-
-    /* distance from origin (box center) to triangle plane */
-    p0 = -mvx_v3_dot(n, v0);
-    rad = mvx_v3_dot(boxhalf, mvx_v3_abs(n));
-
-    if (p0 > rad || p0 < -rad)
-    {
-      return 0;
-    }
+    return 0;
   }
+
   return 1;
 }
 
