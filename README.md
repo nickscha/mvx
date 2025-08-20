@@ -10,12 +10,21 @@ For more information please look at the "mvx.h" file or take a look at the "exam
 > [!WARNING]
 > THIS PROJECT IS A WORK IN PROGRESS! ANYTHING CAN CHANGE AT ANY MOMENT WITHOUT ANY NOTICE! USE THIS PROJECT AT YOUR OWN RISK!
 
-This is an example of a voxelized teddy .obj file:
-<a href="https://github.com/nickscha/mvx"><img src="assets/teddy.png"></a>
-<a href="https://github.com/nickscha/mvx"><img src="assets/teddy_voxel_050.png"></a>
-<a href="https://github.com/nickscha/mvx"><img src="assets/teddy_voxel_100.png"></a>
-<a href="https://github.com/nickscha/mvx"><img src="assets/teddy_voxel_512.png"></a>
-  
+<p>This is an example of a voxelized teddy .obj file:</p>
+<div style="display: flex; justify-content: space-between; gap: 10px;">
+  <a href="https://github.com/nickscha/mvx">
+    <img src="assets/teddy.png" width="200">
+  </a>
+  <a href="https://github.com/nickscha/mvx">
+    <img src="assets/teddy_voxel_050.png" width="200">
+  </a>
+  <a href="https://github.com/nickscha/mvx">
+    <img src="assets/teddy_voxel_100.png" width="200">
+  </a>
+  <a href="https://github.com/nickscha/mvx">
+    <img src="assets/teddy_voxel_512.png" width="200">
+  </a>
+</div>
 
 ## Quick Start
 
