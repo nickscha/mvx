@@ -13,16 +13,16 @@ For more information please look at the "mvx.h" file or take a look at the "exam
 <p>This is an example of a voxelized teddy .obj file:</p>
 <div style="display: flex; justify-content: space-between; gap: 10px;">
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy.png" width="200">
+    <img src="assets/teddy.png" height="300">
   </a>
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy_voxel_050.png" width="200">
+    <img src="assets/teddy_voxel_050.png" height="300">
   </a>
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy_voxel_100.png" width="200">
+    <img src="assets/teddy_voxel_100.png" height="300">
   </a>
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy_voxel_512.png" width="200">
+    <img src="assets/teddy_voxel_512.png" height="300">
   </a>
 </div>
 
