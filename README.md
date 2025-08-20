@@ -11,18 +11,18 @@ For more information please look at the "mvx.h" file or take a look at the "exam
 > THIS PROJECT IS A WORK IN PROGRESS! ANYTHING CAN CHANGE AT ANY MOMENT WITHOUT ANY NOTICE! USE THIS PROJECT AT YOUR OWN RISK!
 
 <p>This is an example of a voxelized teddy .obj file:</p>
-<div style="display: flex; justify-content: space-between; gap: 10px;">
+<div style="display: flex; justify-content: center; gap: 10px;">
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy.png" height="300">
+    <img src="assets/teddy.png" width="200" height="300" style="object-fit: cover;">
   </a>
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy_voxel_050.png" height="300">
+    <img src="assets/teddy_voxel_050.png" width="200" height="300" style="object-fit: cover;">
   </a>
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy_voxel_100.png" height="300">
+    <img src="assets/teddy_voxel_100.png" width="200" height="300" style="object-fit: cover;">
   </a>
   <a href="https://github.com/nickscha/mvx">
-    <img src="assets/teddy_voxel_512.png" height="300">
+    <img src="assets/teddy_voxel_512.png" width="200" height="300" style="object-fit: cover;">
   </a>
 </div>
 
