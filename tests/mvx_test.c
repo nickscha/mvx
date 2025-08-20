@@ -61,9 +61,9 @@ void mvx_test_voxelize_cube(void)
   unsigned long indices_size = sizeof(indices) / sizeof(indices[0]);
 
 /* Define a grid size where the voxelized mesh should fit into */
-#define grid_x 20
-#define grid_y 10
-#define grid_z 10
+#define grid_x 10
+#define grid_y 5
+#define grid_z 5
   unsigned char voxels[grid_x * grid_y * grid_z];
 
   /* Voxelize the mesh with 1 cell padding */

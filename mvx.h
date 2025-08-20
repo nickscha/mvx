@@ -262,32 +262,21 @@ MVX_API MVX_INLINE int mvx_point_in_box_eps_world(mvx_v3 p, mvx_v3 c, mvx_v3 h, 
  * #############################################################################
  */
 
-/* Akenine-Möller triangle-box overlap test */
+/* Akenine-Moeller triangle-box overlap test */
 MVX_API MVX_INLINE int mvx_triangle_box_overlap(
-    mvx_v3 boxcenter,
-    mvx_v3 boxhalf,
-    mvx_v3 triv0,
-    mvx_v3 triv1,
-    mvx_v3 triv2)
+    mvx_v3 boxcenter, mvx_v3 boxhalf,
+    mvx_v3 triv0, mvx_v3 triv1, mvx_v3 triv2)
 {
+  float SLOP = 1e-6f; /* absolute, world-space */
+
   /* move triangle to box space */
   mvx_v3 v0 = mvx_v3_sub(triv0, boxcenter);
   mvx_v3 v1 = mvx_v3_sub(triv1, boxcenter);
   mvx_v3 v2 = mvx_v3_sub(triv2, boxcenter);
 
-  /* triangle edges */
   mvx_v3 e0 = mvx_v3_sub(v1, v0);
   mvx_v3 e1 = mvx_v3_sub(v2, v1);
   mvx_v3 e2 = mvx_v3_sub(v0, v2);
-
-  float minv;
-  float maxv;
-
-  mvx_v3 n;
-  float p0;
-  float rad;
-
-  int i;
 
   /* 9 axis tests */
   mvx_v3 fexyz[3];
@@ -295,54 +284,89 @@ MVX_API MVX_INLINE int mvx_triangle_box_overlap(
   fexyz[1] = mvx_v3_abs(e1);
   fexyz[2] = mvx_v3_abs(e2);
 
-  /* Loop through the three triangle edges (e0, e1, e2) */
-  for (i = 0; i < 3; ++i)
   {
-    mvx_v3 fexyzez = fexyz[i];
-    mvx_v3 edge = (i == 0) ? e0 : ((i == 1) ? e1 : e2);
+    int i;
+    for (i = 0; i < 3; ++i)
+    {
+      mvx_v3 f = fexyz[i];
+      mvx_v3 edge = (i == 0) ? e0 : (i == 1) ? e1
+                                             : e2;
 
-    /* Test axes for each edge */
-    if (mvx_maxf(mvx_maxf(v0.z * edge.y - v0.y * edge.z, v1.z * edge.y - v1.y * edge.z), v2.z * edge.y - v2.y * edge.z) < -(boxhalf.y * fexyzez.z + boxhalf.z * fexyzez.y) ||
-        mvx_minf(mvx_minf(v0.z * edge.y - v0.y * edge.z, v1.z * edge.y - v1.y * edge.z), v2.z * edge.y - v2.y * edge.z) > (boxhalf.y * fexyzez.z + boxhalf.z * fexyzez.y))
+      /* X-axis family */
+      {
+        float p0 = v0.z * edge.y - v0.y * edge.z;
+        float p1 = v1.z * edge.y - v1.y * edge.z;
+        float p2 = v2.z * edge.y - v2.y * edge.z;
+        float pmax = mvx_maxf(mvx_maxf(p0, p1), p2);
+        float pmin = mvx_minf(mvx_minf(p0, p1), p2);
+        float rad = boxhalf.y * f.z + boxhalf.z * f.y + SLOP;
+        
+        if (pmax < -rad || pmin > rad)
+        {
+          return 0;
+        }
+      }
+
+      /* Y-axis family */
+      {
+        float p0 = v0.x * edge.z - v0.z * edge.x;
+        float p1 = v1.x * edge.z - v1.z * edge.x;
+        float p2 = v2.x * edge.z - v2.z * edge.x;
+        float pmax = mvx_maxf(mvx_maxf(p0, p1), p2);
+        float pmin = mvx_minf(mvx_minf(p0, p1), p2);
+        float rad = boxhalf.x * f.z + boxhalf.z * f.x + SLOP;
+
+        if (pmax < -rad || pmin > rad)
+        {
+          return 0;
+        }
+      }
+      /* Z-axis family */
+      {
+        float p0 = v0.y * edge.x - v0.x * edge.y;
+        float p1 = v1.y * edge.x - v1.x * edge.y;
+        float p2 = v2.y * edge.x - v2.x * edge.y;
+        float pmax = mvx_maxf(mvx_maxf(p0, p1), p2);
+        float pmin = mvx_minf(mvx_minf(p0, p1), p2);
+        float rad = boxhalf.x * f.y + boxhalf.y * f.x + SLOP;
+
+        if (pmax < -rad || pmin > rad)
+        {
+          return 0;
+        }
+      }
+    }
+  }
+
+  /* AABB vs AABB */
+  {
+    mvx_v3 tri_min = mvx_v3_min(v0, mvx_v3_min(v1, v2));
+    mvx_v3 tri_max = mvx_v3_max(v0, mvx_v3_max(v1, v2));
+    mvx_v3 bh = mvx_v3_add(boxhalf, mvx_v3_init(SLOP, SLOP, SLOP));
+
+    if (tri_max.x < -bh.x || tri_min.x > bh.x)
     {
       return 0;
     }
 
-    if (mvx_maxf(mvx_maxf(v0.x * edge.z - v0.z * edge.x, v1.x * edge.z - v1.z * edge.x), v2.x * edge.z - v2.z * edge.x) < -(boxhalf.x * fexyzez.z + boxhalf.z * fexyzez.x) ||
-        mvx_minf(mvx_minf(v0.x * edge.z - v0.z * edge.x, v1.x * edge.z - v1.z * edge.x), v2.x * edge.z - v2.z * edge.x) > (boxhalf.x * fexyzez.z + boxhalf.z * fexyzez.x))
+    if (tri_max.y < -bh.y || tri_min.y > bh.y)
     {
       return 0;
     }
 
-    if (mvx_maxf(mvx_maxf(v0.y * edge.x - v0.x * edge.y, v1.y * edge.x - v1.x * edge.y), v2.y * edge.x - v2.x * edge.y) < -(boxhalf.x * fexyzez.y + boxhalf.y * fexyzez.x) ||
-        mvx_minf(mvx_minf(v0.y * edge.x - v0.x * edge.y, v1.y * edge.x - v1.x * edge.y), v2.y * edge.x - v2.x * edge.y) > (boxhalf.x * fexyzez.y + boxhalf.y * fexyzez.x))
+    if (tri_max.z < -bh.z || tri_min.z > bh.z)
     {
       return 0;
     }
   }
 
-  /* test overlap in box axes */
-  minv = mvx_v3_min_element(v0);
-  minv = mvx_minf(minv, mvx_v3_min_element(v1));
-  minv = mvx_minf(minv, mvx_v3_min_element(v2));
-
-  maxv = mvx_v3_max_element(v0);
-  maxv = mvx_maxf(maxv, mvx_v3_max_element(v1));
-  maxv = mvx_maxf(maxv, mvx_v3_max_element(v2));
-
-  if (minv > mvx_v3_max_element(boxhalf) || maxv < -mvx_v3_max_element(boxhalf))
+  /* plane-box overlap (treat touching as overlap) */
   {
-    return 0;
-  }
-
-  /* plane-box overlap */
-  n = mvx_v3_cross(e0, e1);
-  p0 = -mvx_v3_dot(n, v0);
-  rad = mvx_v3_dot(boxhalf, mvx_v3_abs(n));
-
-  if (p0 > rad || p0 < -rad)
-  {
-    return 0;
+    mvx_v3 n = mvx_v3_cross(e0, e1);
+    float d = -mvx_v3_dot(n, v0);
+    float rad = mvx_v3_dot(boxhalf, mvx_v3_abs(n)) + SLOP;
+    if (d > rad || d < -rad)
+      return 0;
   }
 
   return 1;
@@ -397,11 +421,6 @@ MVX_API MVX_INLINE int mvx_voxelize_mesh(
   {
     output_voxels[q] = 0;
   }
-
-  /* grid gap must be at least 1 */
-  grid_pad_x = mvx_max_int(grid_pad_x, 1);
-  grid_pad_y = mvx_max_int(grid_pad_y, 1);
-  grid_pad_z = mvx_max_int(grid_pad_z, 1);
 
   /* mesh bounds */
   for (t = 0; t < vcount; ++t)
@@ -500,9 +519,9 @@ MVX_API MVX_INLINE int mvx_voxelize_mesh(
         mvx_floorf((tmin_b.z - min_b.z) / vxsize) + margin.z);
 
     i_max = mvx_v3i_init(
-        mvx_floorf((tmax_b.x - min_b.x) / vxsize) + margin.x,
-        mvx_floorf((tmax_b.y - min_b.y) / vxsize) + margin.y,
-        mvx_floorf((tmax_b.z - min_b.z) / vxsize) + margin.z);
+        mvx_ceilf((tmax_b.x - min_b.x) / vxsize) + margin.x,
+        mvx_ceilf((tmax_b.y - min_b.y) / vxsize) + margin.y,
+        mvx_ceilf((tmax_b.z - min_b.z) / vxsize) + margin.z);
 
     /* clamp to object's voxel range and overall grid */
     i_min.x = mvx_clamp_int(i_min.x, margin.x, margin.x + (int)need_v.x - 1);
