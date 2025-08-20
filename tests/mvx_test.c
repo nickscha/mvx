@@ -180,10 +180,56 @@ void mvx_test_voxelize_icosphere(void)
   mvx_test_print_voxels(voxels, ico_grid_x, ico_grid_y, ico_grid_z);
 }
 
+void mvx_test_voxelize_pyramid(void)
+{
+  float pyramid_vertices[] = {
+      /* Base (y = 0) */
+      -0.5f, 0.0f, -0.5f, /* 0: back-left */
+      0.5f, 0.0f, -0.5f,  /* 1: back-right */
+      0.5f, 0.0f, 0.5f,   /* 2: front-right */
+      -0.5f, 0.0f, 0.5f,  /* 3: front-left */
+
+      /* Apex */
+      0.0f, 1.0f, 0.0f /* 4: top */
+  };
+
+  /* Indices (counterclockwise for front-facing) */
+  int pyramid_indices[] = {
+      /* Base (two triangles) */
+      0, 1, 2,
+      0, 2, 3,
+
+      /* Sides */
+      0, 1, 4, /* back */
+      1, 2, 4, /* right */
+      2, 3, 4, /* front */
+      3, 0, 4  /* left */
+  };
+
+  unsigned long vertices_size = sizeof(pyramid_vertices) / sizeof(pyramid_vertices[0]);
+  unsigned long indices_size = sizeof(pyramid_indices) / sizeof(pyramid_indices[0]);
+
+#define py_grid_x 21
+#define py_grid_y 21
+#define py_grid_z 21
+  unsigned char voxels[py_grid_x * py_grid_y * py_grid_z];
+
+  mvx_voxelize_mesh(
+      pyramid_vertices, vertices_size, /* Mesh Vertices     */
+      pyramid_indices, indices_size,   /* Mesh Indices      */
+      py_grid_x, py_grid_y, py_grid_z, /* Grid Size         */
+      1, 1, 1,                         /* Grid Cell Padding */
+      voxels                           /* Output Voxels     */
+  );
+
+  mvx_test_print_voxels(voxels, py_grid_x, py_grid_y, py_grid_z);
+}
+
 int main(void)
 {
   mvx_test_voxelize_cube();
   mvx_test_voxelize_icosphere();
+  mvx_test_voxelize_pyramid();
 
   return 0;
 }
