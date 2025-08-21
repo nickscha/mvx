@@ -66,7 +66,24 @@ int main() {
         return 1;
     }
 
-    /* Afterwards you can access the voxels data */
+    /* Afterwards you can access the voxels data  (x,y,z) like this */
+    {
+        int z, y, x;
+        for (z = 0; z < grid_z; ++z)
+        {
+          for (y = grid_y - 1; y >= 0; --y)
+          {
+            for (x = 0; x < grid_x; ++x)
+            {
+              long idx = x + y * grid_x + z * grid_x * grid_y;
+              
+              if (voxels[idx]) {
+                /* Voxel is set */
+              }
+            }
+          }
+        }
+    }
 
     return 0;
 }
