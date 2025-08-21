@@ -13,7 +13,7 @@ For more information please look at the "mvx.h" file or take a look at the "exam
 This is an example of a voxelized teddy .obj file (grid 100x100x100).
 
 <p align="center">
-<a href="https://github.com/nickscha/mvx"><img src="assets/teddy_voxel.png"></a>
+<a href="https://github.com/nickscha/mvx"><img src="assets/teddy_voxel.gif"></a>
 </p>
 
 ## Quick Start
