@@ -69,12 +69,12 @@ MVX_API MVX_INLINE float mvx_clampf(float v, float min, float max)
   return mvx_minf(max, mvx_maxf(v, min));
 }
 
-MVX_API MVX_INLINE int mvx_min_int(int a, int b)
+MVX_API MVX_INLINE int mvx_mini(int a, int b)
 {
   return (a < b) ? a : b;
 }
 
-MVX_API MVX_INLINE int mvx_max_int(int a, int b)
+MVX_API MVX_INLINE int mvx_maxi(int a, int b)
 {
   return (a > b) ? a : b;
 }
@@ -94,7 +94,7 @@ MVX_API MVX_INLINE int mvx_ceilf(float v)
   return -mvx_floorf(-v);
 }
 
-MVX_API MVX_INLINE int mvx_clamp_int(int v, int min, int max)
+MVX_API MVX_INLINE int mvx_clampi(int v, int min, int max)
 {
   if (v < min)
   {
@@ -224,18 +224,18 @@ MVX_API MVX_INLINE mvx_v3i mvx_v3i_init(int x, int y, int z)
 MVX_API MVX_INLINE mvx_v3i mvx_v3i_min(mvx_v3i a, mvx_v3i b)
 {
   mvx_v3i result;
-  result.x = mvx_min_int(a.x, b.x);
-  result.y = mvx_min_int(a.y, b.y);
-  result.z = mvx_min_int(a.z, b.z);
+  result.x = mvx_mini(a.x, b.x);
+  result.y = mvx_mini(a.y, b.y);
+  result.z = mvx_mini(a.z, b.z);
   return result;
 }
 
 MVX_API MVX_INLINE mvx_v3i mvx_v3i_max(mvx_v3i a, mvx_v3i b)
 {
   mvx_v3i result;
-  result.x = mvx_max_int(a.x, b.x);
-  result.y = mvx_max_int(a.y, b.y);
-  result.z = mvx_max_int(a.z, b.z);
+  result.x = mvx_maxi(a.x, b.x);
+  result.y = mvx_maxi(a.y, b.y);
+  result.z = mvx_maxi(a.z, b.z);
   return result;
 }
 
@@ -524,19 +524,19 @@ MVX_API MVX_INLINE int mvx_voxelize_mesh(
         mvx_ceilf((tmax_b.z - min_b.z) / vxsize) + margin.z);
 
     /* clamp to object's voxel range and overall grid */
-    i_min.x = mvx_clamp_int(i_min.x, margin.x, margin.x + (int)need_v.x - 1);
-    i_min.y = mvx_clamp_int(i_min.y, margin.y, margin.y + (int)need_v.y - 1);
-    i_min.z = mvx_clamp_int(i_min.z, margin.z, margin.z + (int)need_v.z - 1);
-    i_max.x = mvx_clamp_int(i_max.x, margin.x, margin.x + (int)need_v.x - 1);
-    i_max.y = mvx_clamp_int(i_max.y, margin.y, margin.y + (int)need_v.y - 1);
-    i_max.z = mvx_clamp_int(i_max.z, margin.z, margin.z + (int)need_v.z - 1);
+    i_min.x = mvx_clampi(i_min.x, margin.x, margin.x + (int)need_v.x - 1);
+    i_min.y = mvx_clampi(i_min.y, margin.y, margin.y + (int)need_v.y - 1);
+    i_min.z = mvx_clampi(i_min.z, margin.z, margin.z + (int)need_v.z - 1);
+    i_max.x = mvx_clampi(i_max.x, margin.x, margin.x + (int)need_v.x - 1);
+    i_max.y = mvx_clampi(i_max.y, margin.y, margin.y + (int)need_v.y - 1);
+    i_max.z = mvx_clampi(i_max.z, margin.z, margin.z + (int)need_v.z - 1);
 
-    i_min.x = mvx_clamp_int(i_min.x, 0, grid_x - 1);
-    i_min.y = mvx_clamp_int(i_min.y, 0, grid_y - 1);
-    i_min.z = mvx_clamp_int(i_min.z, 0, grid_z - 1);
-    i_max.x = mvx_clamp_int(i_max.x, 0, grid_x - 1);
-    i_max.y = mvx_clamp_int(i_max.y, 0, grid_y - 1);
-    i_max.z = mvx_clamp_int(i_max.z, 0, grid_z - 1);
+    i_min.x = mvx_clampi(i_min.x, 0, grid_x - 1);
+    i_min.y = mvx_clampi(i_min.y, 0, grid_y - 1);
+    i_min.z = mvx_clampi(i_min.z, 0, grid_z - 1);
+    i_max.x = mvx_clampi(i_max.x, 0, grid_x - 1);
+    i_max.y = mvx_clampi(i_max.y, 0, grid_y - 1);
+    i_max.z = mvx_clampi(i_max.z, 0, grid_z - 1);
 
     if (i_min.x > i_max.x || i_min.y > i_max.y || i_min.z > i_max.z)
     {
